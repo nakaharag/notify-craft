@@ -1,19 +1,21 @@
-// resources/js/app.ts
-import { createApp, h } from 'vue'
-import { createInertiaApp } from '@inertiajs/inertia-vue3'
-import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers'
+import { createApp, h } from 'vue';
+    import '../css/app.css';
+    import { createInertiaApp } from '@inertiajs/inertia-vue3';
+    import { createPinia } from 'pinia';
+    import { useUserStore } from '@/stores/user';
 
-createInertiaApp({
-    resolve: name => {
-        return resolvePageComponent(
-            `./Pages/${name}.vue`,
-            import.meta.glob('./Pages/**/*.vue')
-        );
-    },
+    createInertiaApp({
+      resolve: name => import(`./Pages/${name}.vue`).then(m => m.default),
+      setup({ el, app: App, props, plugin }) {
+        const pinia = createPinia();
+        const vueApp = createApp({ render: () => h(App, props) });
+        vueApp.use(plugin);
+        vueApp.use(pinia);
 
-    setup({ el, App, props, plugin }) {
-        createApp({ render: () => h(App, props) })
-            .use(plugin)
-            .mount(el)
-    },
-})
+        const shared = (props as any).initialPage.props;
+        const userStore = useUserStore();
+        userStore.setUser(shared.auth?.user ?? null);
+
+        vueApp.mount(el);
+      },
+    });

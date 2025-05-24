@@ -42,4 +42,12 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    /**
+     * Get the post-its created by this user.
+     */
+    public function postIts(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(PostIt::class);
+    }
 }
