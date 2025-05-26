@@ -25,12 +25,10 @@ class AuthController extends Controller
             'password' => Hash::make($data['password']),
         ]);
 
-        $token = $user->createToken('api')->plainTextToken;
-
         return response()->json(compact('user', 'token'), 201);
     }
 
-    public function anonymous(Request $request): UserResource
+    public function anonymous(Request $request): \Illuminate\Http\JsonResponse
     {
         $user = User::create([
             'name'     => 'Anonymous ' . Str::uuid(),
@@ -40,7 +38,9 @@ class AuthController extends Controller
 
         Auth::login($user);
 
-        return new UserResource($user);
+        return response()->json([
+            'user' => new UserResource($user),
+        ]);
     }
 
     public function login(Request $req): \Illuminate\Http\JsonResponse
@@ -54,19 +54,17 @@ class AuthController extends Controller
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
-        $token = Auth::user()->createToken('api')->plainTextToken;
-
         return response()->json([
-            'user'  => Auth::user(),
-            'token' => $token,
+            'user' => new UserResource(Auth::user()),
         ]);
     }
 
-    public function logout(): \Illuminate\Http\RedirectResponse
+    public function logout(): \Illuminate\Http\JsonResponse
     {
         Auth::logout();
-        request()->session()->invalidate();
-        request()->session()->regenerateToken();
-        return redirect()->route('login');
+        $request = request();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return response()->json(['message' => 'Logged out']);
     }
 }

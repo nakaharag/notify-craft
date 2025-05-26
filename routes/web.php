@@ -2,18 +2,21 @@
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Auth;
-use App\Models\User;
 use App\Http\Controllers\AuthController;
+use App\Http\Resources\UserResource;
 
-Route::post('/login/anonymous', [AuthController::class, 'anonymous']);
+Route::middleware('web')->prefix('api')->group(function () {
+    Route::post('register',    [AuthController::class, 'register']);
+    Route::post('login',       [AuthController::class, 'login']);
+    Route::post('login/anonymous', [AuthController::class, 'anonymous']);
+    Route::get('user',         fn() => new UserResource(auth()->user()));
+    Route::post('logout',      [AuthController::class, 'logout']);
+});
 
-Route::post('/logout', [AuthController::class, 'logout']);
-
-Route::get('/login', function () {
-    return Inertia::render('Login');
-})->name('login');
+Route::middleware('guest')->group(function () {
+    Route::get('/login', fn() => Inertia::render('Login'))->name('login');
+    Route::get('/register', fn() => Inertia::render('Register'))->name('register');
+});
 
 Route::get('/', function () {
     return Inertia::render('Home');

@@ -1,21 +1,26 @@
 import { createApp, h } from 'vue';
-    import '../css/app.css';
-    import { createInertiaApp } from '@inertiajs/inertia-vue3';
-    import { createPinia } from 'pinia';
-    import { useUserStore } from '@/stores/user';
+import '../css/app.css';
+import './bootstrap';
+import { createInertiaApp } from '@inertiajs/inertia-vue3';
+import { InertiaProgress } from '@inertiajs/progress';
+import { createPinia } from 'pinia';
+import { useAuthStore } from './stores/auth';
 
-    createInertiaApp({
-      resolve: name => import(`./Pages/${name}.vue`).then(m => m.default),
-      setup({ el, app: App, props, plugin }) {
+InertiaProgress.init({ delay: 250 });
+
+createInertiaApp({
+    resolve: name => import(`./Pages/${name}.vue`).then(m => m.default),
+    setup({ el, app, props, plugin }) {
+        const vueApp = createApp({ render: () => h(app, props) });
         const pinia = createPinia();
-        const vueApp = createApp({ render: () => h(App, props) });
-        vueApp.use(plugin);
-        vueApp.use(pinia);
+        vueApp.use(plugin).use(pinia);
 
-        const shared = (props as any).initialPage.props;
-        const userStore = useUserStore();
-        userStore.setUser(shared.auth?.user ?? null);
+        useAuthStore().init().catch(error => {
+            console.error('Error initializing auth store:', error);
+        });
 
         vueApp.mount(el);
-      },
-    });
+    },
+}).catch(error => {
+    console.error('Error creating Inertia app:', error);
+});

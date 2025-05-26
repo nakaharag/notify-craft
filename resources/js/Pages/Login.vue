@@ -33,19 +33,23 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { Inertia } from '@inertiajs/inertia'
-import { useUserStore } from '@/stores/user'
-import AuthLayout from '@/layouts/AuthLayout.vue'
+import AuthLayout from '../layouts/AuthLayout.vue'
+import { useAuthStore } from '../stores/auth'
 
 const email = ref('')
 const password = ref('')
-const userStore = useUserStore()
+const authStore = useAuthStore()
 
 function login() {
     Inertia.post('/login', { email: email.value, password: password.value })
 }
 
 async function loginAnonymous() {
-    await userStore.loginAnonymous()
-    Inertia.visit('/')
+    try {
+        await authStore.loginAnonymous();
+        Inertia.visit('/');
+    } catch (error) {
+        console.error('Anonymous login failed:', error);
+    }
 }
 </script>

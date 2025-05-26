@@ -1,37 +1,43 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { Inertia } from '@inertiajs/inertia'
-import { useUserStore } from '@/stores/user'
+import { useAuthStore } from '../stores/auth'
 
-const userStore = useUserStore()
-const hasUser = computed(() => userStore.user !== null)
+const authStore = useAuthStore()
+const hasUser = computed(() => authStore.isAuthenticated)
+const isAnonymous = computed(() => authStore.isAnonymous)
 
-const isAnonymous = computed(() =>
-    userStore.user?.email.startsWith('anonymous+')
-)
 const userName = computed(() =>
-    isAnonymous.value ? 'Anonymous' : userStore.user?.name ?? ''
+    isAnonymous.value
+        ? 'Anonymous'
+        : authStore.user?.name ?? ''
 )
+
 const userInitials = computed(() =>
     isAnonymous.value
         ? 'A'
-        : userStore.user?.name
-            .split(' ')
-            .map(n => n[0])
-            .join('')
-            .toUpperCase()
+        : (authStore.user?.name || '')
+        .split(' ')
+        .map(n => n[0])
+        .join('')
+        .toUpperCase() || ''
 )
 
 function toLogin() {
     Inertia.visit('/login')
 }
 
-function loginAnonymous() {
-    userStore.loginAnonymous();
+async function loginAnonymous() {
+    try {
+        await authStore.loginAnonymous()
+        window.location.reload()
+    } catch (error) {
+        console.error('Anonymous login failed:', error)
+    }
 }
 
 function logout() {
-    Inertia.post('/logout')
+    authStore.logout()
 }
 </script>
 
