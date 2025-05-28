@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use App\Http\Resources\PostItResource;
 use App\Models\PostIt;
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
+
 
 class PostItController extends Controller
 {
@@ -35,7 +36,7 @@ class PostItController extends Controller
         ]);
 
         $postIt = $request->user()->postIts()->create($data);
-
+        event(new \App\Events\PostItCreated($postIt));
         return new PostItResource($postIt->load('user'));
     }
 

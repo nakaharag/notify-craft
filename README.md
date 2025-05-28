@@ -1,66 +1,218 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Post-It App
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A modern single-page application (SPA) built with Laravel, Inertia.js, Vue 3, and Pinia. This app allows authenticated users (including anonymous login) to create, view, filter, sort, and paginate "Post-It" notes in real time.
 
-## About Laravel
+## Table of Contents
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+* [Features](#features)
+* [Tech Stack](#tech-stack)
+* [Prerequisites](#prerequisites)
+* [Installation](#installation)
+* [Environment Configuration](#environment-configuration)
+* [Database Setup](#database-setup)
+* [Running Locally](#running-locally)
+* [Running Tests](#running-tests)
+* [Authentication](#authentication)
+* [Frontend Architecture](#frontend-architecture)
+* [API Endpoints](#api-endpoints)
+* [WebSockets (Optional)](#websockets-optional)
+* [Deployment](#deployment)
+* [License](#license)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Features
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+* **User Authentication**: Stateful auth via Laravel Sanctum, with standard and anonymous login.
+* **Create / Read / Update / Delete** Post-It notes.
+* **Data Grid**: Server-side filtering (color, size), sorting (by title, created\_at), and pagination (10 items/page).
+* **Modals**: Create and view note details in modal dialogs.
+* **State Management**: Vue 3 + Pinia store to manage Post-Its and auth state.
+* **Inertia.js**: Seamless server-driven pages with client-side routing and state preservation.
+* **Vite**: Fast HMR, ES module support, CORS adjustments for Firefox.
 
-## Learning Laravel
+## Tech Stack
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+* **Backend**: Laravel 10.x, Sanctum, Eloquent, Inertia, MySQL/PostgreSQL
+* **Frontend**: Vue 3, Inertia.js, Pinia, Axios, Vite
+* **Styling**: CSS Variables, Tailwind CSS (optional)
+* **Real-time** (optional): Laravel Echo + Pusher / WebSockets
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## Prerequisites
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+* PHP 8.1+ with extensions: BCMath, Ctype, Fileinfo, JSON, Mbstring, OpenSSL, PDO, Tokenizer, XML
+* Composer
+* Node.js 18+ and NPM/Yarn
+* Database: MySQL >=5.7 or PostgreSQL >=9.6
+* \[Optional] Pusher account for WebSockets
 
-## Laravel Sponsors
+## Installation
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+1. **Clone the repo**
 
-### Premium Partners
+   ```bash
+   git clone https://github.com/yourusername/post-it-app.git
+   cd post-it-app
+   ```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+2. **Install PHP dependencies**
 
-## Contributing
+   ```bash
+   composer install
+   ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+3. **Install JS dependencies**
 
-## Code of Conduct
+   ```bash
+   npm install
+   # or
+   yarn
+   ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+4. **Generate app key**
 
-## Security Vulnerabilities
+   ```bash
+   php artisan key:generate
+   ```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Environment Configuration
+
+Copy `.env.example` to `.env` and update:
+
+```
+APP_NAME="Post-It App"
+APP_URL=http://localhost
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=postit
+DB_USERNAME=root
+DB_PASSWORD=secret
+
+# Sanctum / CSRF
+SANCTUM_STATEFUL_DOMAINS=localhost:5173
+SESSION_DOMAIN=localhost
+
+# (Optional) Pusher
+PUSHER_APP_ID=your-id
+PUSHER_APP_KEY=your-key
+PUSHER_APP_SECRET=your-secret
+PUSHER_APP_CLUSTER=mt1
+```
+
+## Database Setup
+
+```bash
+php artisan migrate
+php artisan db:seed  # optional
+```
+
+## Running Locally
+
+### 1) Start Laravel Backend
+
+```bash
+php artisan serve --port=8000
+```
+
+### 2) Start Vite Dev Server
+
+```bash
+npm run dev
+# or
+vite
+```
+
+> **Firefox CORS Tip:**
+>
+> * Ensure `cors: true` in `vite.config.js` under `server`.
+> * Add `crossorigin` attribute to your module `<script>` tags in `resources/views/app.blade.php`:
+    >
+    >   ```blade
+>   <script type="module" crossorigin src="http://localhost:5173/@vite/client"></script>
+>   <script type="module" crossorigin src="http://localhost:5173/resources/js/app.ts"></script>
+>   ```
+
+## Running Tests
+
+```bash
+php artisan test
+# or with Pest:
+./vendor/bin/pest
+```
+
+## Authentication
+
+* **Stateless vs. Stateful**: We use **stateful** authentication with Laravel Sanctum for ease of session handling and CSRF protection.
+* **Login**: Standard email/password or anonymous login generates a temporary user and issues tokens.
+
+## Frontend Architecture
+
+* **Pinia Stores**: `auth.ts` and `postIts.ts` handle API interactions, CSRF token fetch, and state.
+* **Components**:
+
+    * `AppLayout.vue`: Global navigation bar and slot wrapper.
+    * `AuthLayout.vue`: Simple layout for login/register without navbar.
+    * `Pages/PostIts/Index.vue`: Inertia page combining `Filters.vue`, `Board.vue`, `Pagination.vue`, `CreatePostItModal.vue`, `PostItModal.vue`.
+    * `Filters.vue`: Emits filter changes.
+    * `Board.vue` (formerly `PostItGrid.vue`): Renders sticky notes.
+    * `Pagination.vue`: Emits page navigation.
+    * Modal components for create/view.
+
+## API Endpoints
+
+| Method | Endpoint               | Description                   |
+| ------ | ---------------------- | ----------------------------- |
+| GET    | `/api/post-its`        | List Post-Its (filters, page) |
+| POST   | `/api/post-its`        | Create a new Post-It          |
+| GET    | `/api/post-its/{id}`   | Show single Post-It           |
+| PUT    | `/api/post-its/{id}`   | Update Post-It                |
+| DELETE | `/api/post-its/{id}`   | Delete Post-It                |
+| POST   | `/api/register`        | User registration             |
+| POST   | `/api/login`           | User login                    |
+| POST   | `/api/login/anonymous` | Anonymous login               |
+| GET    | `/api/user`            | Fetch authenticated user      |
+| POST   | `/api/logout`          | Logout                        |
+
+## WebSockets (Optional)
+
+To broadcast real-time note creation:
+
+1. Install & configure `beyondcode/laravel-websockets` or use Pusher.
+2. Create an `App\Events\PostItCreated` event implementing `ShouldBroadcast`.
+3. Fire the event in `PostItController@store`:
+
+   ```php
+   event(new PostItCreated($postIt));
+   ```
+4. In `resources/js/bootstrap.ts`, configure Echo & Pusher:
+
+   ```js
+   import Echo from 'laravel-echo';
+   window.Echo = new Echo({
+     broadcaster: 'pusher',
+     key: process.env.VITE_PUSHER_APP_KEY,
+     cluster: process.env.VITE_PUSHER_APP_CLUSTER,
+     forceTLS: true,
+     auth: { headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') } }
+   });
+   ```
+5. Listen in a Vue component:
+
+   ```js
+   Echo.private('post-its')
+     .listen('PostItCreated', e => store.postIts.unshift(e.postIt));
+   ```
+
+## Deployment
+
+* Build assets:
+
+  ```bash
+  npm run build
+  ```
+* Set `APP_ENV=production` and configure `@vite` directive in Blade.
+* Serve via a web server (Nginx / Apache) pointing to `public`.
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project is open-sourced under the MIT license.
